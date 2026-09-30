@@ -1,0 +1,33 @@
+<body style="margin:0;overflow:hidden">
+<canvas id="c"></canvas>
+<script>
+const ctx = c.getContext('2d');
+  c.width = innerWidth; 
+  c.height = innerHeight;
+  var velocity = 0;
+  var gravity = -2;
+  var terminalVelocity = -20;
+  var flapForce = 20;
+  var birdY = c.height/2;
+
+  onresize = () => {c.width = innerWidth; c.height = innerHeight;};
+  onclick = () => console.log('clicked');
+  onkeydown = keyDown;
+
+  setInterval(() => {
+    ctx.fillStyle = '#111';
+    ctx.fillRect(0, 0, c.width, c.height);
+
+    ctx.fillStyle = 'lime';
+    ctx.fillRect((c.width * 0.2) - 30, birdY, 60, 60);
+
+    birdY -= velocity;
+    velocity = Math.max(velocity + gravity, terminalVelocity);
+  }, 1000 / 60);
+
+  function keyDown(e){
+    if (e.key === ' ') {
+      velocity = flapForce;
+    }
+  }
+</script>
