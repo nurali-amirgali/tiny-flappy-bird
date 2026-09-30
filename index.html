@@ -6,9 +6,15 @@ const ctx = c.getContext('2d');
   c.height = innerHeight;
   var velocity = 0;
   var gravity = -2;
-  var terminalVelocity = -20;
+  var terminalVelocity = -50;
   var flapForce = 20;
   var birdY = c.height/2;
+
+  var width = 30;
+
+  var pipeSpeed = 10
+
+  var pipes = [];
 
   onresize = () => {c.width = innerWidth; c.height = innerHeight;};
   onclick = () => console.log('clicked');
@@ -18,8 +24,20 @@ const ctx = c.getContext('2d');
     ctx.fillStyle = '#111';
     ctx.fillRect(0, 0, c.width, c.height);
 
-    ctx.fillStyle = 'lime';
+    ctx.fillStyle = 'white';
     ctx.fillRect((c.width * 0.2) - 30, birdY, 60, 60);
+
+    for (let i = pipes.length - 1; i >= 0; i--) {
+      const pipe = pipes[i];
+      pipe[0] -= pipeSpeed;
+
+      ctx.fillStyle = 'lime';
+      ctx.fillRect(pipe[0], pipe[1], pipe[2], pipe[3]);
+      if (pipe[0] + pipe[2] <= 0) {
+          pipes.splice(i, 1);
+      }
+    }
+    console.log(pipes.length)
 
     birdY -= velocity;
     velocity = Math.max(velocity + gravity, terminalVelocity);
@@ -28,6 +46,20 @@ const ctx = c.getContext('2d');
   function keyDown(e){
     if (e.key === ' ') {
       velocity = flapForce;
+      pipe();
     }
+  }
+
+  function pipe(){
+    let max = 100;
+    let min = 400;
+    let gap = 50;
+    let randomY = Math.floor(Math.random() * (max - min + 1)) + min;
+
+    let topHeight = randomY - (gap/2);
+    let bottomY = c.height - randomY + (gap/2);
+
+    pipes.push([c.width, 0, width, topHeight]); //x, y, width, height
+    pipes.push([c.width, bottomY, width, c.height - bottomY]);
   }
 </script>
