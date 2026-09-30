@@ -12,6 +12,9 @@ const ctx = c.getContext('2d');
 
   var width = 60;
 
+  var pipeTimer = 0;
+  var pipeDistance = 300;
+  var numPipes = 10
   var pipeSpeed = 10
 
   var pipes = [];
@@ -37,6 +40,12 @@ const ctx = c.getContext('2d');
           pipes.splice(i, 1);
       }
     }
+    
+    pipeTimer += pipeSpeed;
+    if (pipeTimer >= pipeDistance){
+      pipe();
+      pipeTimer = 0;
+    }
     console.log(pipes.length)
 
     birdY -= velocity;
@@ -46,13 +55,12 @@ const ctx = c.getContext('2d');
   function keyDown(e){
     if (e.key === ' ') {
       velocity = flapForce;
-      pipe();
     }
   }
 
   function pipe(){
-    let max = 300;
-    let min = c.height-300;
+    let max = 170;
+    let min = c.height-170;
     let gap = 250;
     let randomY = Math.floor(Math.random() * (max - min + 1)) + min;
 
