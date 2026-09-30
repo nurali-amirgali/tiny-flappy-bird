@@ -5,12 +5,12 @@ const ctx = c.getContext('2d');
   c.width = innerWidth; 
   c.height = innerHeight;
   var velocity = 0;
-  var gravity = -2;
+  var gravity = -2.5;
   var terminalVelocity = -50;
   var flapForce = 20;
   var birdY = c.height/2;
 
-  var width = 30;
+  var width = 60;
 
   var pipeSpeed = 10
 
@@ -51,13 +51,13 @@ const ctx = c.getContext('2d');
   }
 
   function pipe(){
-    let max = 100;
-    let min = 400;
-    let gap = 50;
+    let max = 300;
+    let min = c.height-300;
+    let gap = 250;
     let randomY = Math.floor(Math.random() * (max - min + 1)) + min;
 
     let topHeight = randomY - (gap/2);
-    let bottomY = c.height - randomY + (gap/2);
+    let bottomY = randomY + (gap/2);
 
     pipes.push([c.width, 0, width, topHeight]); //x, y, width, height
     pipes.push([c.width, bottomY, width, c.height - bottomY]);
