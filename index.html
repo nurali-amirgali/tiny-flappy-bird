@@ -9,6 +9,7 @@ const ctx = c.getContext('2d');
   var terminalVelocity = -50;
   var flapForce = 20;
   var birdY = c.height/2;
+  var birdX = (c.width * 0.2) - 30;
 
   var width = 60;
 
@@ -16,6 +17,9 @@ const ctx = c.getContext('2d');
   var pipeDistance = 300;
   var numPipes = 10
   var pipeSpeed = 10
+
+  var score = 0;
+  var gameOver = false;
 
   var pipes = [];
 
@@ -28,7 +32,7 @@ const ctx = c.getContext('2d');
     ctx.fillRect(0, 0, c.width, c.height);
 
     ctx.fillStyle = 'white';
-    ctx.fillRect((c.width * 0.2) - 30, birdY, 60, 60);
+    ctx.fillRect(birdX, birdY, 60, 60);
 
     for (let i = pipes.length - 1; i >= 0; i--) {
       const pipe = pipes[i];
@@ -39,6 +43,11 @@ const ctx = c.getContext('2d');
       if (pipe[0] + pipe[2] <= 0) {
           pipes.splice(i, 1);
       }
+      if (birdX < (pipe[0] + pipe[2]) && (birdX + 60) > pipe[0]){
+        if (birdY < (pipe[1] + pipe[3]) && (birdY + 60) > pipe[1]){
+          gameOver = true;
+        }
+      }
     }
     
     pipeTimer += pipeSpeed;
@@ -46,7 +55,6 @@ const ctx = c.getContext('2d');
       pipe();
       pipeTimer = 0;
     }
-    console.log(pipes.length)
 
     birdY -= velocity;
     velocity = Math.max(velocity + gravity, terminalVelocity);
