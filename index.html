@@ -60,13 +60,16 @@ const ctx = c.getContext('2d');
     }else{
       passedPoint = false;
     }
-    console.log(score);
     
     pipeTimer += pipeSpeed;
     if (pipeTimer >= pipeDistance){
       pipe();
       pipeTimer = 0;
     }
+
+    ctx.fillStyle = 'white';
+    ctx.font = '100px monospace';
+    ctx.fillText(score, c.width/2 - 30, 70);
 
     birdY -= velocity;
     velocity = Math.max(velocity + gravity, terminalVelocity);
