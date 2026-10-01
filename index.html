@@ -20,7 +20,8 @@ const ctx = c.getContext('2d');
   var pipeSpeed = 10
 
   var score = 0;
-  var gameOver = false;
+  var gameOver = true;
+  var startScreen = true;
 
   var pipes = [];
 
@@ -32,13 +33,19 @@ const ctx = c.getContext('2d');
     ctx.fillStyle = '#111';
     ctx.fillRect(0, 0, c.width, c.height);
 
-    ctx.fillStyle = 'white';
+    if (gameOver && !startScreen){
+      ctx.fillStyle = 'darkred';
+    }else{
+      ctx.fillStyle = 'white';
+    }
     ctx.fillRect(birdX, birdY, 60, 60);
 
     var inPoint = false;
     for (let i = pipes.length - 1; i >= 0; i--) { 
       const pipe = pipes[i];
-      pipe[0] -= pipeSpeed;
+      if (!gameOver){
+        pipe[0] -= pipeSpeed;
+      }
 
       ctx.fillStyle = 'lime';
       ctx.fillRect(pipe[0], pipe[1], pipe[2], pipe[3]);
@@ -60,24 +67,55 @@ const ctx = c.getContext('2d');
     }else{
       passedPoint = false;
     }
-    
-    pipeTimer += pipeSpeed;
-    if (pipeTimer >= pipeDistance){
-      pipe();
-      pipeTimer = 0;
+
+    if (birdY < 0 || (birdY + 60) > c.height){
+      gameOver = true;
     }
 
     ctx.fillStyle = 'white';
     ctx.font = '100px monospace';
-    ctx.fillText(score, c.width/2 - 30, 70);
+    if (!gameOver){
+      ctx.fillText(score, c.width/2 - 30, 70);
+    }
+    if (!gameOver){
+      birdY -= velocity;
+      velocity = Math.max(velocity + gravity, terminalVelocity);
+      pipeTimer += pipeSpeed;
+    }
 
-    birdY -= velocity;
-    velocity = Math.max(velocity + gravity, terminalVelocity);
+    ctx.fillStyle = 'green';
+    ctx.font = '100px monospace';
+    if (gameOver){
+      if (startScreen){
+        ctx.fillText("click space to start", c.width * 0.1, c.height/2);
+      }else{
+        ctx.fillStyle = 'red';
+        ctx.fillText("GAME OVER", c.width * 0.3, c.height*0.35);
+        ctx.fillText("SCORE: " + score, c.width * 0.3, c.height*0.35 + 100);
+        ctx.fillText("Click to restart", c.width * 0.17, c.height*0.35 + 200);
+      }
+    }
+
+    if (pipeTimer >= pipeDistance){
+      pipe();
+      pipeTimer = 0;
+    }
   }, 1000 / 60);
 
   function keyDown(e){
     if (e.key === ' ') {
       velocity = flapForce;
+      if (gameOver){
+        if (startScreen){
+          gameOver = false;
+          startScreen = false;
+        }else{
+          startScreen = true;
+          score = 0;
+          pipes = [];
+          birdY = (c.width * 0.2) - 30;
+        }
+      }
     }
   }
 
