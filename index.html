@@ -12,6 +12,7 @@ const ctx = c.getContext('2d');
   var birdX = (c.width * 0.2) - 30;
 
   var width = 60;
+  var passedPoint = false;
 
   var pipeTimer = 0;
   var pipeDistance = 300;
@@ -34,7 +35,8 @@ const ctx = c.getContext('2d');
     ctx.fillStyle = 'white';
     ctx.fillRect(birdX, birdY, 60, 60);
 
-    for (let i = pipes.length - 1; i >= 0; i--) {
+    var inPoint = false;
+    for (let i = pipes.length - 1; i >= 0; i--) { 
       const pipe = pipes[i];
       pipe[0] -= pipeSpeed;
 
@@ -44,11 +46,21 @@ const ctx = c.getContext('2d');
           pipes.splice(i, 1);
       }
       if (birdX < (pipe[0] + pipe[2]) && (birdX + 60) > pipe[0]){
+        inPoint = true;
         if (birdY < (pipe[1] + pipe[3]) && (birdY + 60) > pipe[1]){
           gameOver = true;
         }
       }
     }
+    if (inPoint) {
+      if (!passedPoint){
+        passedPoint = true;
+        score++;
+      }
+    }else{
+      passedPoint = false;
+    }
+    console.log(score);
     
     pipeTimer += pipeSpeed;
     if (pipeTimer >= pipeDistance){
