@@ -5,9 +5,9 @@ const ctx = c.getContext('2d');
   c.width = innerWidth; 
   c.height = innerHeight;
   var velocity = 0;
-  var gravity = -2.5;
-  var terminalVelocity = -50;
-  var flapForce = 20;
+  var gravity = -1.6;
+  var terminalVelocity = -30;
+  var flapForce = 18;
   var birdY = c.height*0.33;
   var birdX = (c.width * 0.2) - 30;
 
@@ -17,7 +17,7 @@ const ctx = c.getContext('2d');
   var pipeTimer = 0;
   var pipeDistance = 300;
   var numPipes = 10
-  var pipeSpeed = 10
+  var pipeSpeed = 4
 
   var score = 0;
   var gameOver = true;
@@ -29,38 +29,30 @@ const ctx = c.getContext('2d');
   onmousedown = jump;
   onkeydown = keyDown;
 
-  setInterval(() => {
+  ctx.font = '100px monospace';
+  ctx.strokeStyle = 'black';
+  ctx.lineWidth = 4;
+  let last = performance.now();
+  function loop(now) {
+    const dt = Math.min((now - last) / (1000 / 60), 3);
+    last = now;
     ctx.fillStyle = 'cyan';
     ctx.fillRect(0, 0, c.width, c.height);
 
-    if (gameOver && !startScreen){
-      ctx.fillStyle = 'darkred';
-    }else{
-      ctx.fillStyle = 'white';
-    }
-    ctx.fillStyle = gameOver && !startScreen ? 'darkred' : 'white';
-    ctx.fillRect(birdX, birdY, 60, 60);
+    drawRect(gameOver && !startScreen ? 'darkred' : 'white', birdX, birdY, 60, 60);
 
-    ctx.strokeStyle = 'black';
-    ctx.lineWidth = 4;
-    ctx.strokeRect(birdX, birdY, 60, 60);
+    ctx.fillStyle = 'black';
+    ctx.fillRect(birdX+45, birdY+10, 10, 10);
 
     var inPoint = false;
     for (let i = pipes.length - 1; i >= 0; i--) { 
       const pipe = pipes[i];
       if (!gameOver){
-        pipe[0] -= pipeSpeed;
+        pipe[0] -= pipeSpeed * dt;
       }
 
-      ctx.fillStyle = 'lime';
-      ctx.fillRect(pipe[0], pipe[1], pipe[2], pipe[3]);
-
-      ctx.strokeStyle = 'black';
-      ctx.lineWidth = 4;
-      ctx.strokeRect(pipe[0], pipe[1], pipe[2], pipe[3]);
-      if (pipe[0] + pipe[2] <= 0) {
-          pipes.splice(i, 1);
-      }
+      drawRect('lime', pipe[0], pipe[1], pipe[2], pipe[3]);
+      if (pipe[0] + pipe[2] <= 0) {pipes.splice(i, 1);}
       if (birdX < (pipe[0] + pipe[2]) && (birdX + 60) > pipe[0]){
         inPoint = true;
         if (birdY < (pipe[1] + pipe[3]) && (birdY + 60) > pipe[1]){
@@ -82,18 +74,19 @@ const ctx = c.getContext('2d');
     }
 
     ctx.fillStyle = 'black';
-    ctx.font = '100px monospace';
     if (!gameOver){
       ctx.fillText(score, c.width/2 - 30, 70);
     }
     if (!gameOver){
-      birdY -= velocity;
-      velocity = Math.max(velocity + gravity, terminalVelocity);
-      pipeTimer += pipeSpeed;
+      pipeSpeed = Math.min(0.0005 * dt + pipeSpeed, 10);
+      birdY -= velocity * dt;
+      velocity = Math.max(velocity + gravity * dt, terminalVelocity);
+      pipeTimer += pipeSpeed * dt;
     }
 
+    drawRect('lime',0, c.height*0.95, c.width, c.height-(c.height*0.95))
+
     ctx.fillStyle = 'green';
-    ctx.font = '100px monospace';
     if (gameOver){
       if (startScreen){
         ctx.fillText("click space to start", c.width * 0.1, c.height/2);
@@ -109,21 +102,29 @@ const ctx = c.getContext('2d');
       pipe();
       pipeTimer = 0;
     }
-  }, 1000 / 60);
+    requestAnimationFrame(loop);
+  }
+  requestAnimationFrame(loop);
 
   function jump(){
     velocity = flapForce;
-      if (gameOver){
-        if (startScreen){
-          gameOver = false;
-          startScreen = false;
-        }else{
-          startScreen = true;
-          score = 0;
-          pipes = [];
-          birdY = c.height*0.33;
-        }
+    if (gameOver){
+      if (startScreen){
+        gameOver = false;
+        startScreen = false;
+      }else{
+        startScreen = true;
+        score = 0;
+        pipes = [];
+        birdY = c.height*0.33;
       }
+    }
+  }
+
+  function drawRect(color, x, y, width, height){
+    ctx.fillStyle = color;
+    ctx.fillRect(x,y,width,height);
+    ctx.strokeRect(x,y,width,height);
   }
 
   function keyDown(e){
