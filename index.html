@@ -2,147 +2,132 @@
 <canvas id="c"></canvas>
 <script>
 const ctx = c.getContext('2d');
-  c.width = innerWidth; 
-  c.height = innerHeight;
-  var velocity = 0;
-  var gravity = -1.6;
-  var terminalVelocity = -30;
-  var flapForce = 18;
-  var birdY = c.height*0.33;
-  var birdX = (c.width * 0.2) - 30;
+c.width = innerWidth; 
+c.height = innerHeight;
+var v = 0;
+var y = c.height*0.33;
+var x= (c.width * 0.2) - 30;
+var ps = false;
+var pt = 0;
+var pss = 4
+var s = 0;
+var go = true;
+var ss= true;
+var pps= [];
+//onresize = () => {c.width = innerWidth; c.height = innerHeight;};
+onmousedown = jump;
+onkeydown = keyDown;
+ctx.font = '100px monospace';
+ctx.strokeStyle = 'black';
+ctx.lineWidth = 4;
+let last = performance.now();
+function loop(now) {
+const dt = Math.min((now - last) / (1000 / 60), 3);
+last = now;
+ctx.fillStyle = 'cyan';
+ctx.fillRect(0, 0, c.width, c.height);
 
-  var width = 60;
-  var passedPoint = false;
+drawRect(go && !ss? 'darkred' : 'white', x, y, 60, 60);
 
-  var pipeTimer = 0;
-  var pipeDistance = 300;
-  var numPipes = 10
-  var pipeSpeed = 4
+ctx.fillStyle = 'black';
+ctx.fillRect(x+45, y+10, 10, 10);
 
-  var score = 0;
-  var gameOver = true;
-  var startScreen = true;
+var inPoint = false;
+for (let i = pps.length - 1; i >= 0; i--) { 
+const pipe = pps[i];
+if (!go){
+pipe[0] -= pss * dt;
+}
 
-  var pipes = [];
+drawRect('lime', pipe[0], pipe[1], pipe[2], pipe[3]);
+if (pipe[0] + pipe[2] <= 0) {pps.splice(i, 1);}
+if (x< (pipe[0] + pipe[2]) && (x+ 60) > pipe[0]){
+inPoint = true;
+if (y < (pipe[1] + pipe[3]) && (y + 60) > pipe[1]){
+go = true;
+}
+}
+}
+if (inPoint) {
+if (!ps){
+ps = true;
+s++;
+}
+}else{
+ps = false;
+}
 
-  onresize = () => {c.width = innerWidth; c.height = innerHeight;};
-  onmousedown = jump;
-  onkeydown = keyDown;
+if (y < 0 || (y + 60) > c.height){
+go = true;
+}
 
-  ctx.font = '100px monospace';
-  ctx.strokeStyle = 'black';
-  ctx.lineWidth = 4;
-  let last = performance.now();
-  function loop(now) {
-    const dt = Math.min((now - last) / (1000 / 60), 3);
-    last = now;
-    ctx.fillStyle = 'cyan';
-    ctx.fillRect(0, 0, c.width, c.height);
+ctx.fillStyle = 'black';
+if (!go){
+ctx.fillText(s, c.width/2 - 30, 70);
+}
+if (!go){
+pss = Math.min(0.0005 * dt + pss, 10);
+y -= v * dt;
+v = Math.max(v - 1.6 * dt, -30);
+pt += pss * dt;
+}
 
-    drawRect(gameOver && !startScreen ? 'darkred' : 'white', birdX, birdY, 60, 60);
+drawRect('lime',0, c.height*0.95, c.width, c.height-(c.height*0.95))
 
-    ctx.fillStyle = 'black';
-    ctx.fillRect(birdX+45, birdY+10, 10, 10);
+ctx.fillStyle = 'green';
+if (go){
+if (ss){
+ctx.fillText("click space to start", c.width * 0.1, c.height/2);
+}else{
+ctx.fillStyle = 'red';
+ctx.fillText("GAME OVER", c.width * 0.3, c.height*0.35);
+ctx.fillText("Score: " + s, c.width * 0.3, c.height*0.35 + 100);
+ctx.fillText("Click to restart", c.width * 0.17, c.height*0.35 + 200);
+}
+}
 
-    var inPoint = false;
-    for (let i = pipes.length - 1; i >= 0; i--) { 
-      const pipe = pipes[i];
-      if (!gameOver){
-        pipe[0] -= pipeSpeed * dt;
-      }
+if (pt >= 300){
+pipe();
+pt = 0;
+}
+requestAnimationFrame(loop);
+}
+requestAnimationFrame(loop);
 
-      drawRect('lime', pipe[0], pipe[1], pipe[2], pipe[3]);
-      if (pipe[0] + pipe[2] <= 0) {pipes.splice(i, 1);}
-      if (birdX < (pipe[0] + pipe[2]) && (birdX + 60) > pipe[0]){
-        inPoint = true;
-        if (birdY < (pipe[1] + pipe[3]) && (birdY + 60) > pipe[1]){
-          gameOver = true;
-        }
-      }
-    }
-    if (inPoint) {
-      if (!passedPoint){
-        passedPoint = true;
-        score++;
-      }
-    }else{
-      passedPoint = false;
-    }
+function jump(){
+v = 18;
+if (go){
+if (ss){
+go = false;
+ss= false;
+}else{
+ss= true;
+s = 0;
+pps= [];
+pss = 4
+y = c.height*0.33;
+}}}
 
-    if (birdY < 0 || (birdY + 60) > c.height){
-      gameOver = true;
-    }
+function drawRect(color, x, y, width, height){
+ctx.fillStyle = color;
+ctx.fillRect(x,y,width,height);
+ctx.strokeRect(x,y,width,height);
+}
 
-    ctx.fillStyle = 'black';
-    if (!gameOver){
-      ctx.fillText(score, c.width/2 - 30, 70);
-    }
-    if (!gameOver){
-      pipeSpeed = Math.min(0.0005 * dt + pipeSpeed, 10);
-      birdY -= velocity * dt;
-      velocity = Math.max(velocity + gravity * dt, terminalVelocity);
-      pipeTimer += pipeSpeed * dt;
-    }
+function keyDown(e){
+if (e.key === ' ') {
+jump();
+}
+}
 
-    drawRect('lime',0, c.height*0.95, c.width, c.height-(c.height*0.95))
-
-    ctx.fillStyle = 'green';
-    if (gameOver){
-      if (startScreen){
-        ctx.fillText("click space to start", c.width * 0.1, c.height/2);
-      }else{
-        ctx.fillStyle = 'red';
-        ctx.fillText("GAME OVER", c.width * 0.3, c.height*0.35);
-        ctx.fillText("SCORE: " + score, c.width * 0.3, c.height*0.35 + 100);
-        ctx.fillText("Click to restart", c.width * 0.17, c.height*0.35 + 200);
-      }
-    }
-
-    if (pipeTimer >= pipeDistance){
-      pipe();
-      pipeTimer = 0;
-    }
-    requestAnimationFrame(loop);
-  }
-  requestAnimationFrame(loop);
-
-  function jump(){
-    velocity = flapForce;
-    if (gameOver){
-      if (startScreen){
-        gameOver = false;
-        startScreen = false;
-      }else{
-        startScreen = true;
-        score = 0;
-        pipes = [];
-        birdY = c.height*0.33;
-      }
-    }
-  }
-
-  function drawRect(color, x, y, width, height){
-    ctx.fillStyle = color;
-    ctx.fillRect(x,y,width,height);
-    ctx.strokeRect(x,y,width,height);
-  }
-
-  function keyDown(e){
-    if (e.key === ' ') {
-      jump();
-    }
-  }
-
-  function pipe(){
-    let max = 170;
-    let min = c.height-170;
-    let gap = 250;
-    let randomY = Math.floor(Math.random() * (max - min + 1)) + min;
-
-    let topHeight = randomY - (gap/2);
-    let bottomY = randomY + (gap/2);
-
-    pipes.push([c.width, -10, width, topHeight+10]); //x, y, width, height
-    pipes.push([c.width, bottomY, width, c.height - bottomY + 10]);
-  }
+function pipe(){
+let max = 170;
+let min = c.height-170;
+let gap = 250;
+let randomY = Math.floor(Math.random() * (max - min + 1)) + min;
+let topHeight = randomY - (gap/2);
+let bottomY = randomY + (gap/2);
+pps.push([c.width, -10, 60, topHeight+10]);
+pps.push([c.width, bottomY, 60, c.height - bottomY + 10]);
+}
 </script>
