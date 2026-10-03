@@ -9,12 +9,12 @@ var y = c.height*0.33;
 var x= (c.width * 0.2) - 30;
 var ps = false;
 var pt = 0;
-var pss = 4
+var pss = 4;
 var s = 0;
 var go = true;
 var ss= true;
 var pps= [];
-onmousedown = jump;
+onpointerdown = jump;
 onkeydown = keyDown;
 ctx.font = '100px monospace';
 ctx.strokeStyle = 'black';
@@ -71,7 +71,7 @@ v = Math.max(v - 1.6 * dt, -30);
 pt += pss * dt;
 }
 
-drawRect('lime',0, c.height*0.95, c.width, c.height-(c.height*0.95))
+drawRect('lime',0, c.height*0.95, c.width, c.height-(c.height*0.95));
 
 ctx.fillStyle = 'green';
 if (go){
@@ -103,7 +103,7 @@ ss= false;
 ss= true;
 s = 0;
 pps= [];
-pss = 4
+pss = 4;
 y = c.height*0.33;
 }}}
 
