@@ -1,0 +1,132 @@
+data:text/html,<body style="margin:0;overflow:hidden">
+<canvas id="c"></canvas>
+<script>
+const ctx = c.getContext('2d');
+c.width = innerWidth; 
+c.height = innerHeight;
+var v = 0;
+var y = c.height*0.33;
+var x= (c.width * 0.2) - 30;
+var ps = false;
+var pt = 0;
+var pss = 4;
+var s = 0;
+var go = true;
+var ss= true;
+var pps= [];
+onpointerdown = jump;
+onkeydown = keyDown;
+ctx.font = '100px monospace';
+ctx.strokeStyle = 'black';
+ctx.lineWidth = 4;
+let last = performance.now();
+function loop(now) {
+const dt = Math.min((now - last) / (1000 / 60), 3);
+last = now;
+ctx.fillStyle = 'cyan';
+ctx.fillRect(0, 0, c.width, c.height);
+
+drawRect(go && !ss? 'darkred' : 'white', x, y, 60, 60);
+
+ctx.fillStyle = 'black';
+ctx.fillRect(x+45, y+10, 10, 10);
+
+var inPoint = false;
+for (let i = pps.length - 1; i >= 0; i--) { 
+const pipe = pps[i];
+if (!go){
+pipe[0] -= pss * dt;
+}
+
+drawRect('lime', pipe[0], pipe[1], pipe[2], pipe[3]);
+if (pipe[0] + pipe[2] <= 0) {pps.splice(i, 1);}
+if (x< (pipe[0] + pipe[2]) && (x+ 60) > pipe[0]){
+inPoint = true;
+if (y < (pipe[1] + pipe[3]) && (y + 60) > pipe[1]){
+go = true;
+}
+}
+}
+if (inPoint) {
+if (!ps){
+ps = true;
+s++;
+}
+}else{
+ps = false;
+}
+
+if (y < 0 || (y + 60) > c.height){
+go = true;
+}
+
+ctx.fillStyle = 'black';
+if (!go){
+ctx.fillText(s, c.width/2 - 30, 70);
+}
+if (!go){
+pss = Math.min(0.0005 * dt + pss, 10);
+y -= v * dt;
+v = Math.max(v - 1.6 * dt, -30);
+pt += pss * dt;
+}
+
+drawRect('lime',0, c.height*0.95, c.width, c.height-(c.height*0.95));
+
+ctx.fillStyle = 'green';
+if (go){
+if (ss){
+ctx.fillText("click space to start", c.width * 0.1, c.height/2);
+}else{
+ctx.fillStyle = 'red';
+ctx.fillText("GAME OVER", c.width * 0.3, c.height*0.35);
+ctx.fillText("Score: " + s, c.width * 0.3, c.height*0.35 + 100);
+ctx.fillText("Click to restart", c.width * 0.17, c.height*0.35 + 200);
+}
+}
+
+if (pt >= 300){
+pipe();
+pt = 0;
+}
+requestAnimationFrame(loop);
+}
+requestAnimationFrame(loop);
+
+function jump(){
+v = 18;
+if (go){
+if (ss){
+go = false;
+ss= false;
+}else{
+ss= true;
+s = 0;
+pps= [];
+pss = 4;
+y = c.height*0.33;
+}}}
+
+function drawRect(color, x, y, width, height){
+ctx.fillStyle = color;
+ctx.fillRect(x,y,width,height);
+ctx.strokeRect(x,y,width,height);
+}
+
+function keyDown(e){
+if (e.key === ' ') {
+jump();
+}
+}
+
+function pipe(){
+let max = 170;
+let min = c.height-170;
+let gap = 250;
+let randomY = Math.floor(Math.random() * (max - min + 1)) + min;
+let topHeight = randomY - (gap/2);
+let bottomY = randomY + (gap/2);
+pps.push([c.width, -10, 60, topHeight+10]);
+pps.push([c.width, bottomY, 60, c.height - bottomY + 10]);
+}
+</script>
