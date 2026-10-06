@@ -3,7 +3,7 @@ This is a simple flappy bird game made in html and js. It is contained entirely 
 
 ![gameplay](gameplay.gif)
 
-## HOW TO PLAY
+## HOW TO RUN
 1. open [url.txt](url.txt)
 2. copy the url
 3. paste it into the address bar of your browser and click enter
